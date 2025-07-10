@@ -1,0 +1,8 @@
+# AI
+.claude/
+CLAUDE.md
+
+# Binary
+release/lazymcp
+
+*.code-workspace

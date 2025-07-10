@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Test the MCP server by sending a request via stdin
+
+echo "Testing lazymcp server..."
+
+# Create a temporary file with the complete MCP conversation
+cat > /tmp/mcp_requests.jsonl << 'EOF'
+{"jsonrpc": "2.0", "method": "initialize", "params": {"protocolVersion": "2024-11-05", "capabilities": {"tools": {}}, "clientInfo": {"name": "test-client", "version": "1.0.0"}}, "id": 1}
+{"jsonrpc": "2.0", "method": "notifications/initialized", "params": {}}
+{"jsonrpc": "2.0", "method": "tools/call", "params": {"name": "get_current_time", "arguments": {"format": "iso8601", "timezone": "America/New_York"}}, "id": 2}
+EOF
+
+echo "Sending requests to server..."
+echo "Input requests:"
+cat /tmp/mcp_requests.jsonl
+echo
+echo "Server output:"
+
+# Run the server and capture output (redirect stderr to stdout to see debug logs)
+./release/lazymcp < /tmp/mcp_requests.jsonl 2>&1
+
+echo
+echo "Test completed."
+rm -f /tmp/mcp_requests.jsonl
