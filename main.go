@@ -1,110 +1,83 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
-	"os"
-	"time"
 
-	mcp_golang "github.com/metoro-io/mcp-golang"
-	"github.com/metoro-io/mcp-golang/transport/stdio"
+	"github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 )
 
-type TimeArgs struct {
-	Format   string `json:"format,omitempty" jsonschema:"description=Time format: 'unix', 'iso8601', 'rfc3339', 'kitchen', or custom Go time format,default=iso8601"`
-	Timezone string `json:"timezone,omitempty" jsonschema:"description=Timezone (e.g., 'UTC', 'America/New_York', 'Europe/London'),default=UTC"`
-}
-
 func main() {
-	// Enable debug logging to stderr
-	log.SetOutput(os.Stderr)
-	log.Println("Starting lazymcp server...")
+	// Create a new MCP server
+	s := server.NewMCPServer(
+		"Calculator Demo",
+		"1.0.0",
+		server.WithToolCapabilities(false),
+		server.WithRecovery(),
+	)
 
-	// Create a new server using stdio transport
-	transport := stdio.NewStdioServerTransport()
-	server := mcp_golang.NewServer(transport)
+	// Add a calculator tool
+	calculatorTool := mcp.NewTool("calculate",
+		mcp.WithDescription("Perform basic arithmetic operations"),
+		mcp.WithString("operation",
+			mcp.Required(),
+			mcp.Description("The operation to perform (add, subtract, multiply, divide)"),
+			mcp.Enum("add", "subtract", "multiply", "divide"),
+		),
+		mcp.WithNumber("x",
+			mcp.Required(),
+			mcp.Description("First number"),
+		),
+		mcp.WithNumber("y",
+			mcp.Required(),
+			mcp.Description("Second number"),
+		),
+	)
 
-	log.Println("Server created, registering tools...")
-
-	// Register the get_current_time tool
-	err := server.RegisterTool("get_current_time", "Get the current date and time in various formats", func(args TimeArgs) (*mcp_golang.ToolResponse, error) {
-		log.Printf("Tool called with args: %+v", args)
-		// Use defaults if not provided
-		format := args.Format
-		if format == "" {
-			format = "iso8601"
-		}
-
-		timezone := args.Timezone
-		if timezone == "" {
-			timezone = "UTC"
-		}
-
-		// Load timezone
-		loc, err := time.LoadLocation(timezone)
+	// Add the calculator handler
+	s.AddTool(calculatorTool, func(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+		// Using helper functions for type-safe argument access
+		op, err := request.RequireString("operation")
 		if err != nil {
-			return nil, fmt.Errorf("invalid timezone: %v", err)
+			return mcp.NewToolResultError(err.Error()), nil
 		}
 
-		// Get current time in the specified timezone
-		now := time.Now().In(loc)
-
-		// Format time based on the requested format
-		var formatted string
-		switch format {
-		case "unix":
-			formatted = fmt.Sprintf("%d", now.Unix())
-		case "iso8601", "rfc3339":
-			formatted = now.Format(time.RFC3339)
-		case "kitchen":
-			formatted = now.Format(time.Kitchen)
-		default:
-			// Try to use custom format
-			formatted = now.Format(format)
+		x, err := request.RequireFloat("x")
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
 		}
 
-		// Build detailed response
-		responseText := fmt.Sprintf(`Current time in %s: %s
+		y, err := request.RequireFloat("y")
+		if err != nil {
+			return mcp.NewToolResultError(err.Error()), nil
+		}
 
-Details:
-- Year: %d
-- Month: %s
-- Day: %d
-- Hour: %d
-- Minute: %d
-- Second: %d
-- Weekday: %s
-- Timezone: %s
-- UTC Offset: %s
-- Unix Timestamp: %d`,
-			timezone, formatted,
-			now.Year(),
-			now.Month().String(),
-			now.Day(),
-			now.Hour(),
-			now.Minute(),
-			now.Second(),
-			now.Weekday().String(),
-			loc.String(),
-			now.Format("-07:00"),
-			now.Unix())
+		var result float64
+		switch op {
+		case "add":
+			result = x + y
+		case "subtract":
+			result = x - y
+		case "multiply":
+			result = x * y
+		case "divide":
+			if y == 0 {
+				return mcp.NewToolResultError("cannot divide by zero"), nil
+			}
+			result = x / y
+		}
 
-		// Create the response
-		response := mcp_golang.NewToolResponse(
-			mcp_golang.NewTextContent(responseText),
-		)
-
-		return response, nil
+		return mcp.NewToolResultText(fmt.Sprintf("%.2f", result)), nil
 	})
 
-	if err != nil {
-		log.Fatalf("Failed to register tool: %v", err)
-	}
+	// Create HTTP transport server
+	httpServer := server.NewStreamableHTTPServer(s)
 
-	log.Println("Tool registered successfully, starting server...")
-
-	// Start the server - this blocks and handles incoming messages
-	if err := server.Serve(); err != nil {
-		log.Fatalf("Server error: %v", err)
+	// Start the server on port 3000
+	log.Printf("HTTP server starting on http://localhost:3000/mcp")
+	if err := httpServer.Start(":3000"); err != nil {
+		log.Fatal(err)
 	}
 }
