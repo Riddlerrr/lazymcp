@@ -10,11 +10,11 @@ import (
 )
 
 func main() {
-	// Create a new MCP server
 	s := server.NewMCPServer(
-		"Calculator Demo",
+		"LazyMCP",
 		"1.0.0",
 		server.WithToolCapabilities(false),
+		server.WithLogging(),
 		server.WithRecovery(),
 	)
 

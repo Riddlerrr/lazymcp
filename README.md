@@ -1,6 +1,6 @@
 # LazyMCP - MCP Time Server
 
-A general-purpose MCP (Model Context Protocol) server written in Go that provides real-time data, starting with current date and time functionality.
+A general-purpose MCP (Model Context Protocol) server written in Go that provides real-time data, starting with basic calculator functionality.
 
 ## Installation
 
@@ -26,7 +26,7 @@ bin/build
 
 ### Running the Server
 
-The server uses stdio transport for communication:
+The server uses Streamable HTTP transport for communication:
 
 ```bash
 bin/run
@@ -34,48 +34,27 @@ bin/run
 
 ### Available Tools
 
-#### `get_current_time`
+#### `calculate`
+Perform basic arithmetic operations.
 
-Get the current date and time in various formats.
+**Parameters:**
+- `operation` (required): The operation to perform (add, subtract, multiply, divide)
+- `x` (required): First number
+- `y` (required): Second number
 
-Parameters:
-- `format` (optional): Time format. Options include:
-  - `unix` - Unix timestamp
-  - `iso8601` - ISO 8601 format (default)
-  - `rfc3339` - RFC 3339 format
-  - `kitchen` - Kitchen format (e.g., "3:04PM")
-  - Custom Go time format string
-- `timezone` (optional): Timezone name (default: "UTC")
-  - Examples: "America/New_York", "Europe/London", "Asia/Tokyo"
-
-Example usage with Claude Desktop or other MCP clients:
-
+**Example:**
 ```json
 {
-  "tool": "get_current_time",
+  "name": "calculate",
   "arguments": {
-    "format": "iso8601",
-    "timezone": "America/New_York"
+    "operation": "add",
+    "x": 5,
+    "y": 3
   }
 }
 ```
 
-### Integration with Claude Desktop
-
-To use this server with Claude Desktop, add it to your configuration:
-
-1. Build the server first
-2. Add to your Claude Desktop configuration (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
-
-```json
-{
-  "mcpServers": {
-    "lazymcp": {
-      "command": "/path/to/lazymcp"
-    }
-  }
-}
-```
+**Returns:** The result of the arithmetic operation as a formatted number.
 
 ## Development
 
