@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/Riddlerrr/lazymcp/tools"
 	"github.com/mark3labs/mcp-go/server"
 )
 
@@ -15,7 +16,8 @@ func main() {
 		server.WithRecovery(),
 	)
 
-	AddCalculatorTool(s)
+	calculator := tools.NewCalculatorTool()
+	s.AddTool(calculator.Tool, calculator.Handler)
 
 	// Create HTTP transport server
 	httpServer := server.NewStreamableHTTPServer(s)
