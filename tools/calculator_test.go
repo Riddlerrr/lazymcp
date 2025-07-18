@@ -255,3 +255,139 @@ func TestCalculatorTool_MissingParameters(t *testing.T) {
 		})
 	}
 }
+
+func TestCalculatorTool_TrigonometricOperations(t *testing.T) {
+	calculator := NewCalculatorTool()
+	ctx := context.Background()
+
+	tests := []struct {
+		name      string
+		operation string
+		x         float64
+		angleUnit string
+		expected  string
+		hasError  bool
+	}{
+		{"Sin 0 radians", "sin", 0, "radians", "0.00", false},
+		{"Sin 90 degrees", "sin", 90, "degrees", "1.00", false},
+		{"Sin π/2 radians", "sin", 1.5708, "radians", "1.00", false},
+		{"Cos 0 radians", "cos", 0, "radians", "1.00", false},
+		{"Cos 90 degrees", "cos", 90, "degrees", "0.00", false},
+		{"Cos π radians", "cos", 3.1416, "radians", "-1.00", false},
+		{"Tan 0 radians", "tan", 0, "radians", "0.00", false},
+		{"Tan 45 degrees", "tan", 45, "degrees", "1.00", false},
+		{"Tan π/4 radians", "tan", 0.7854, "radians", "1.00", false},
+		{"Sin default unit (radians)", "sin", 0, "", "0.00", false},
+		{"Cos default unit (radians)", "cos", 0, "", "1.00", false},
+		{"Tan default unit (radians)", "tan", 0, "", "0.00", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			args := map[string]interface{}{
+				"operation": tt.operation,
+				"x":         tt.x,
+			}
+			if tt.angleUnit != "" {
+				args["angle_unit"] = tt.angleUnit
+			}
+
+			request := mcp.CallToolRequest{
+				Params: mcp.CallToolParams{
+					Arguments: args,
+				},
+			}
+
+			result, err := calculator.Handler(ctx, request)
+			if err != nil {
+				t.Fatalf("Handler returned error: %v", err)
+			}
+
+			if tt.hasError {
+				if !result.IsError {
+					t.Errorf("Expected error but got success")
+				}
+			} else {
+				if result.IsError {
+					t.Errorf("Expected success but got error: %v", result.Content)
+				}
+				if len(result.Content) > 0 {
+					if textContent, ok := result.Content[0].(*mcp.TextContent); ok {
+						if textContent.Text != tt.expected {
+							t.Errorf("Expected %s, got %s", tt.expected, textContent.Text)
+						}
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestCalculatorTool_InverseTrigonometricOperations(t *testing.T) {
+	calculator := NewCalculatorTool()
+	ctx := context.Background()
+
+	tests := []struct {
+		name      string
+		operation string
+		x         float64
+		angleUnit string
+		expected  string
+		hasError  bool
+	}{
+		{"Asin 0 radians", "asin", 0, "radians", "0.00", false},
+		{"Asin 1 degrees", "asin", 1, "degrees", "90.00", false},
+		{"Asin 0.5 radians", "asin", 0.5, "radians", "0.52", false},
+		{"Asin invalid input", "asin", 2, "radians", "", true},
+		{"Asin invalid input negative", "asin", -2, "radians", "", true},
+		{"Acos 1 radians", "acos", 1, "radians", "0.00", false},
+		{"Acos 0 degrees", "acos", 0, "degrees", "90.00", false},
+		{"Acos -1 radians", "acos", -1, "radians", "3.14", false},
+		{"Acos invalid input", "acos", 2, "radians", "", true},
+		{"Acos invalid input negative", "acos", -2, "radians", "", true},
+		{"Atan 0 radians", "atan", 0, "radians", "0.00", false},
+		{"Atan 1 degrees", "atan", 1, "degrees", "45.00", false},
+		{"Atan -1 radians", "atan", -1, "radians", "-0.79", false},
+		{"Atan default unit (radians)", "atan", 0, "", "0.00", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			args := map[string]interface{}{
+				"operation": tt.operation,
+				"x":         tt.x,
+			}
+			if tt.angleUnit != "" {
+				args["angle_unit"] = tt.angleUnit
+			}
+
+			request := mcp.CallToolRequest{
+				Params: mcp.CallToolParams{
+					Arguments: args,
+				},
+			}
+
+			result, err := calculator.Handler(ctx, request)
+			if err != nil {
+				t.Fatalf("Handler returned error: %v", err)
+			}
+
+			if tt.hasError {
+				if !result.IsError {
+					t.Errorf("Expected error but got success")
+				}
+			} else {
+				if result.IsError {
+					t.Errorf("Expected success but got error: %v", result.Content)
+				}
+				if len(result.Content) > 0 {
+					if textContent, ok := result.Content[0].(*mcp.TextContent); ok {
+						if textContent.Text != tt.expected {
+							t.Errorf("Expected %s, got %s", tt.expected, textContent.Text)
+						}
+					}
+				}
+			}
+		})
+	}
+}

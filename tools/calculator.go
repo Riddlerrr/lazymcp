@@ -22,18 +22,22 @@ func NewCalculatorTool() *CalculatorTool {
 
 func calculatorTool() mcp.Tool {
 	return mcp.NewTool("calculate",
-		mcp.WithDescription("Perform basic and some advanced arithmetic operations"),
+		mcp.WithDescription("Perform basic, advanced arithmetic, and trigonometric operations"),
 		mcp.WithString("operation",
 			mcp.Required(),
-			mcp.Description("The operation to perform (add, subtract, multiply, divide, power, sqrt, modulo)"),
-			mcp.Enum("add", "subtract", "multiply", "divide", "power", "sqrt", "modulo"),
+			mcp.Description("The operation to perform (add, subtract, multiply, divide, power, sqrt, modulo, sin, cos, tan, asin, acos, atan)"),
+			mcp.Enum("add", "subtract", "multiply", "divide", "power", "sqrt", "modulo", "sin", "cos", "tan", "asin", "acos", "atan"),
 		),
 		mcp.WithNumber("x",
 			mcp.Required(),
 			mcp.Description("First number"),
 		),
 		mcp.WithNumber("y",
-			mcp.Description("Second number (not required for sqrt operation)"),
+			mcp.Description("Second number (not required for sqrt, sin, cos, tan, asin, acos, atan operations)"),
+		),
+		mcp.WithString("angle_unit",
+			mcp.Description("Unit for trigonometric operations (degrees or radians, defaults to radians)"),
+			mcp.Enum("degrees", "radians"),
 		),
 	)
 }
@@ -98,6 +102,51 @@ func calculatorToolHandler(ctx context.Context, request mcp.CallToolRequest) (*m
 			return mcp.NewToolResultError("Cannot perform modulo with zero"), nil
 		}
 		result = math.Mod(x, y)
+	case "sin":
+		angle := x
+		angleUnit := request.GetString("angle_unit", "radians")
+		if angleUnit == "degrees" {
+			angle = x * math.Pi / 180
+		}
+		result = math.Sin(angle)
+	case "cos":
+		angle := x
+		angleUnit := request.GetString("angle_unit", "radians")
+		if angleUnit == "degrees" {
+			angle = x * math.Pi / 180
+		}
+		result = math.Cos(angle)
+	case "tan":
+		angle := x
+		angleUnit := request.GetString("angle_unit", "radians")
+		if angleUnit == "degrees" {
+			angle = x * math.Pi / 180
+		}
+		result = math.Tan(angle)
+	case "asin":
+		if x < -1 || x > 1 {
+			return mcp.NewToolResultError("Input for asin must be between -1 and 1"), nil
+		}
+		result = math.Asin(x)
+		angleUnit := request.GetString("angle_unit", "radians")
+		if angleUnit == "degrees" {
+			result = result * 180 / math.Pi
+		}
+	case "acos":
+		if x < -1 || x > 1 {
+			return mcp.NewToolResultError("Input for acos must be between -1 and 1"), nil
+		}
+		result = math.Acos(x)
+		angleUnit := request.GetString("angle_unit", "radians")
+		if angleUnit == "degrees" {
+			result = result * 180 / math.Pi
+		}
+	case "atan":
+		result = math.Atan(x)
+		angleUnit := request.GetString("angle_unit", "radians")
+		if angleUnit == "degrees" {
+			result = result * 180 / math.Pi
+		}
 	default:
 		return mcp.NewToolResultError(fmt.Sprintf("Unknown operation: %s", op)), nil
 	}
