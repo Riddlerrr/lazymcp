@@ -5,6 +5,9 @@ CLAUDE.md
 # Binary
 release/lazymcp
 
-*.code-workspace
 
 tmp/
+
+# Random stuff
+*.code-workspace
+.DS_Store
