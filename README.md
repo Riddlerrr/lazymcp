@@ -35,14 +35,15 @@ bin/run
 ### Available Tools
 
 #### `calculate`
-Perform basic arithmetic operations.
+Perform basic, advanced arithmetic, and trigonometric operations.
 
 **Parameters:**
-- `operation` (required): The operation to perform (add, subtract, multiply, divide)
+- `operation` (required): The operation to perform (add, subtract, multiply, divide, power, sqrt, modulo, sin, cos, tan, asin, acos, atan)
 - `x` (required): First number
-- `y` (required): Second number
+- `y` (optional): Second number (not required for sqrt, sin, cos, tan, asin, acos, atan operations)
+- `angle_unit` (optional): Unit for trigonometric operations (degrees or radians, defaults to radians)
 
-**Example:**
+**Examples:**
 ```json
 {
   "name": "calculate",
@@ -54,7 +55,28 @@ Perform basic arithmetic operations.
 }
 ```
 
-**Returns:** The result of the arithmetic operation as a formatted number.
+```json
+{
+  "name": "calculate",
+  "arguments": {
+    "operation": "sin",
+    "x": 45,
+    "angle_unit": "degrees"
+  }
+}
+```
+
+```json
+{
+  "name": "calculate",
+  "arguments": {
+    "operation": "sqrt",
+    "x": 16
+  }
+}
+```
+
+**Returns:** The result of the operation as a formatted number (rounded to 2 decimal places).
 
 ## Development
 
