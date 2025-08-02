@@ -15,3 +15,6 @@ tmp/
 # Random stuff
 *.code-workspace
 .DS_Store
+
+# Nix specific files
+.direnv/
