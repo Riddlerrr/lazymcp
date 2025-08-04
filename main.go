@@ -35,6 +35,7 @@ func NewMCPServer() *server.MCPServer {
 
 	calculator := tools.NewCalculatorTool()
 	mcpServer.AddTool(calculator.Tool, calculator.Handler)
+	
 	return mcpServer
 }
 

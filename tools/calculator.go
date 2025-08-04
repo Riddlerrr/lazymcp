@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 
+	"github.com/expr-lang/expr"
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
@@ -22,134 +23,57 @@ func NewCalculatorTool() *CalculatorTool {
 
 func calculatorTool() mcp.Tool {
 	return mcp.NewTool("calculate",
-		mcp.WithDescription("Perform basic, advanced arithmetic, and trigonometric operations"),
-		mcp.WithString("operation",
+		mcp.WithDescription("Evaluate mathematical expressions using natural syntax (e.g., '2 + 3 * 4', 'sin(pi/4)', 'sqrt(16)')"),
+		mcp.WithString("expression",
 			mcp.Required(),
-			mcp.Description("The operation to perform (add, subtract, multiply, divide, power, sqrt, modulo, sin, cos, tan, asin, acos, atan)"),
-			mcp.Enum("add", "subtract", "multiply", "divide", "power", "sqrt", "modulo", "sin", "cos", "tan", "asin", "acos", "atan"),
-		),
-		mcp.WithNumber("x",
-			mcp.Required(),
-			mcp.Description("First number"),
-		),
-		mcp.WithNumber("y",
-			mcp.Description("Second number (not required for sqrt, sin, cos, tan, asin, acos, atan operations)"),
-		),
-		mcp.WithString("angle_unit",
-			mcp.Description("Unit for trigonometric operations (degrees or radians, defaults to radians)"),
-			mcp.Enum("degrees", "radians"),
+			mcp.Description("Mathematical expression to evaluate. Supports +, -, *, /, ^, sqrt(), sin(), cos(), tan(), asin(), acos(), atan(), log(), ln(), abs(), ceil(), floor(), round(), pi, e"),
 		),
 	)
 }
 
 func calculatorToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	op, err := request.RequireString("operation")
+	expression, err := request.RequireString("expression")
 	if err != nil {
 		return mcp.NewToolResultError(err.Error()), nil
 	}
 
-	x, err := request.RequireFloat("x")
-	if err != nil {
-		return mcp.NewToolResultError(err.Error()), nil
+	env := map[string]interface{}{
+		"pi":    math.Pi,
+		"e":     math.E,
+		"sqrt":  math.Sqrt,
+		"sin":   math.Sin,
+		"cos":   math.Cos,
+		"tan":   math.Tan,
+		"asin":  math.Asin,
+		"acos":  math.Acos,
+		"atan":  math.Atan,
+		"log":   math.Log10,
+		"ln":    math.Log,
+		"abs":   math.Abs,
+		"ceil":  math.Ceil,
+		"floor": math.Floor,
+		"round": math.Round,
+		"pow":   math.Pow,
 	}
 
-	var result float64
-	switch op {
-	case "add":
-		y, err := request.RequireFloat("y")
-		if err != nil {
-			return mcp.NewToolResultError(err.Error()), nil
-		}
-		result = x + y
-	case "subtract":
-		y, err := request.RequireFloat("y")
-		if err != nil {
-			return mcp.NewToolResultError(err.Error()), nil
-		}
-		result = x - y
-	case "multiply":
-		y, err := request.RequireFloat("y")
-		if err != nil {
-			return mcp.NewToolResultError(err.Error()), nil
-		}
-		result = x * y
-	case "divide":
-		y, err := request.RequireFloat("y")
-		if err != nil {
-			return mcp.NewToolResultError(err.Error()), nil
-		}
-		if y == 0 {
-			return mcp.NewToolResultError("Cannot divide by zero"), nil
-		}
-		result = x / y
-	case "power":
-		y, err := request.RequireFloat("y")
-		if err != nil {
-			return mcp.NewToolResultError(err.Error()), nil
-		}
-		result = math.Pow(x, y)
-	case "sqrt":
-		if x < 0 {
-			return mcp.NewToolResultError("Cannot calculate square root of negative number"), nil
-		}
-		result = math.Sqrt(x)
-	case "modulo":
-		y, err := request.RequireFloat("y")
-		if err != nil {
-			return mcp.NewToolResultError(err.Error()), nil
-		}
-		if y == 0 {
-			return mcp.NewToolResultError("Cannot perform modulo with zero"), nil
-		}
-		result = math.Mod(x, y)
-	case "sin":
-		angle := x
-		angleUnit := request.GetString("angle_unit", "radians")
-		if angleUnit == "degrees" {
-			angle = x * math.Pi / 180
-		}
-		result = math.Sin(angle)
-	case "cos":
-		angle := x
-		angleUnit := request.GetString("angle_unit", "radians")
-		if angleUnit == "degrees" {
-			angle = x * math.Pi / 180
-		}
-		result = math.Cos(angle)
-	case "tan":
-		angle := x
-		angleUnit := request.GetString("angle_unit", "radians")
-		if angleUnit == "degrees" {
-			angle = x * math.Pi / 180
-		}
-		result = math.Tan(angle)
-	case "asin":
-		if x < -1 || x > 1 {
-			return mcp.NewToolResultError("Input for asin must be between -1 and 1"), nil
-		}
-		result = math.Asin(x)
-		angleUnit := request.GetString("angle_unit", "radians")
-		if angleUnit == "degrees" {
-			result = result * 180 / math.Pi
-		}
-	case "acos":
-		if x < -1 || x > 1 {
-			return mcp.NewToolResultError("Input for acos must be between -1 and 1"), nil
-		}
-		result = math.Acos(x)
-		angleUnit := request.GetString("angle_unit", "radians")
-		if angleUnit == "degrees" {
-			result = result * 180 / math.Pi
-		}
-	case "atan":
-		result = math.Atan(x)
-		angleUnit := request.GetString("angle_unit", "radians")
-		if angleUnit == "degrees" {
-			result = result * 180 / math.Pi
-		}
+	program, err := expr.Compile(expression, expr.Env(env))
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Expression compilation error: %v", err)), nil
+	}
+
+	result, err := expr.Run(program, env)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Expression evaluation error: %v", err)), nil
+	}
+
+	switch v := result.(type) {
+	case float64:
+		return mcp.NewToolResultText(fmt.Sprintf("%.6g", v)), nil
+	case int64:
+		return mcp.NewToolResultText(fmt.Sprintf("%d", v)), nil
+	case int:
+		return mcp.NewToolResultText(fmt.Sprintf("%d", v)), nil
 	default:
-		return mcp.NewToolResultError(fmt.Sprintf("Unknown operation: %s", op)), nil
+		return mcp.NewToolResultText(fmt.Sprintf("%v", v)), nil
 	}
-
-	return mcp.NewToolResultText(fmt.Sprintf("%.2f", result)), nil
 }
