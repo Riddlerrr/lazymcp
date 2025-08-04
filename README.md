@@ -35,22 +35,17 @@ bin/run
 ### Available Tools
 
 #### `calculate`
-Perform basic, advanced arithmetic, and trigonometric operations.
+Evaluate mathematical expressions using natural syntax.
 
 **Parameters:**
-- `operation` (required): The operation to perform (add, subtract, multiply, divide, power, sqrt, modulo, sin, cos, tan, asin, acos, atan)
-- `x` (required): First number
-- `y` (optional): Second number (not required for sqrt, sin, cos, tan, asin, acos, atan operations)
-- `angle_unit` (optional): Unit for trigonometric operations (degrees or radians, defaults to radians)
+- `expression` (required): Mathematical expression to evaluate. Supports +, -, *, /, ^, sqrt(), sin(), cos(), tan(), asin(), acos(), atan(), log(), ln(), abs(), ceil(), floor(), round(), pi, e
 
 **Examples:**
 ```json
 {
   "name": "calculate",
   "arguments": {
-    "operation": "add",
-    "x": 5,
-    "y": 3
+    "expression": "2 + 3 * 4"
   }
 }
 ```
@@ -59,9 +54,7 @@ Perform basic, advanced arithmetic, and trigonometric operations.
 {
   "name": "calculate",
   "arguments": {
-    "operation": "sin",
-    "x": 45,
-    "angle_unit": "degrees"
+    "expression": "sin(pi/4)"
   }
 }
 ```
@@ -70,13 +63,21 @@ Perform basic, advanced arithmetic, and trigonometric operations.
 {
   "name": "calculate",
   "arguments": {
-    "operation": "sqrt",
-    "x": 16
+    "expression": "sqrt(16)"
   }
 }
 ```
 
-**Returns:** The result of the operation as a formatted number (rounded to 2 decimal places).
+```json
+{
+  "name": "calculate",
+  "arguments": {
+    "expression": "pow(2, 8)"
+  }
+}
+```
+
+**Returns:** The result of the expression evaluation as a formatted number.
 
 ## Development
 
