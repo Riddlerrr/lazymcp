@@ -40,7 +40,10 @@ func NewMCPServer() *server.MCPServer {
 
 	ipTool := tools.NewIPTool()
 	mcpServer.AddTool(ipTool.Tool, ipTool.Handler)
-	
+
+	ipDataTool := tools.NewIPDataTool()
+	mcpServer.AddTool(ipDataTool.Tool, ipDataTool.Handler)
+
 	return mcpServer
 }
 
