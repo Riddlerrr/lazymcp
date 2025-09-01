@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/Riddlerrr/lazymcp/tools"
+	"github.com/joho/godotenv"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
@@ -79,6 +80,11 @@ func getClientIP(r *http.Request) string {
 }
 
 func main() {
+	// Load .env file
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found, using system environment variables")
+	}
+
 	s := NewMCPServer()
 
 	// Create HTTP transport server with custom context function
