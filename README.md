@@ -1,6 +1,6 @@
 # LazyMCP - An MCP server that can really help
 
-A general-purpose MCP (Model Context Protocol) server written in Go that provides real-time data, starting with basic calculator functionality.
+A general-purpose MCP (Model Context Protocol) server written in Go that provides calculator, IP lookup, and weather functionality with real-time data access.
 
 ## Installation
 
@@ -22,11 +22,20 @@ Build the server:
 bin/build
 ```
 
+## Configuration
+
+### Weather Tool Setup
+The weather tool requires an OpenWeatherMap API key to function:
+
+1. Get a free API key from https://openweathermap.org/api
+2. Copy `.env.example` to `.env`
+3. Set your API key: `OPENWEATHER_API_KEY=your_api_key_here`
+
 ## Usage
 
 ### Running the Server
 
-The server uses Streamable HTTP transport for communication:
+The server uses Streamable HTTP transport for communication on `http://localhost:3000/mcp`:
 
 ```bash
 bin/run
@@ -38,7 +47,7 @@ bin/run
 Evaluate mathematical expressions using natural syntax.
 
 **Parameters:**
-- `expression` (required): Mathematical expression to evaluate. Supports +, -, *, /, ^, sqrt(), sin(), cos(), tan(), asin(), acos(), atan(), log(), ln(), abs(), ceil(), floor(), round(), pi, e
+- `expression` (required): Mathematical expression to evaluate. Supports +, -, *, /, ^, sqrt(), sin(), cos(), tan(), asin(), acos(), atan(), log(), ln(), abs(), ceil(), floor(), round(), pow(), pi, e
 
 **Examples:**
 ```json
@@ -78,6 +87,80 @@ Evaluate mathematical expressions using natural syntax.
 ```
 
 **Returns:** The result of the expression evaluation as a formatted number.
+
+#### `get_ip`
+Get the IP address of the client making the request.
+
+**Parameters:** None
+
+**Example:**
+```json
+{
+  "name": "get_ip",
+  "arguments": {}
+}
+```
+
+**Returns:** The client's IP address as a string.
+
+#### `get_ip_data`
+Get detailed information about an IP address including geolocation data.
+
+**Parameters:**
+- `ip` (optional): IP address to lookup. If not provided, uses the client's IP address.
+
+**Examples:**
+```json
+{
+  "name": "get_ip_data",
+  "arguments": {}
+}
+```
+
+```json
+{
+  "name": "get_ip_data",
+  "arguments": {
+    "ip": "8.8.8.8"
+  }
+}
+```
+
+**Returns:** Formatted markdown with location information including country, region, city, coordinates, timezone, ISP, and network details.
+
+#### `get_weather`
+Get current weather for a location. Uses client's IP location by default, or accepts a custom location parameter.
+
+**Parameters:**
+- `location` (optional): Location to get weather for. Can be city name (e.g., 'London' or 'New York,US') or coordinates (e.g., '40.7128,-74.0060'). Uses client IP location if not provided.
+
+**Examples:**
+```json
+{
+  "name": "get_weather",
+  "arguments": {}
+}
+```
+
+```json
+{
+  "name": "get_weather",
+  "arguments": {
+    "location": "London"
+  }
+}
+```
+
+```json
+{
+  "name": "get_weather",
+  "arguments": {
+    "location": "40.7128,-74.0060"
+  }
+}
+```
+
+**Returns:** Formatted markdown with current weather conditions, temperature, humidity, pressure, wind, visibility, and location details. Units are automatically determined (metric for most countries, imperial for US locations).
 
 ## Development
 
