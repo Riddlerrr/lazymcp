@@ -1,4 +1,4 @@
-# LazyMCP - MCP Time Server
+# LazyMCP - An MCP server that can really help
 
 A general-purpose MCP (Model Context Protocol) server written in Go that provides real-time data, starting with basic calculator functionality.
 
