@@ -16,5 +16,8 @@ tmp/
 *.code-workspace
 .DS_Store
 
+# Environment variables
+.env
+
 # Nix specific files
 .direnv/

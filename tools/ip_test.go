@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/mark3labs/mcp-go/mcp"
@@ -51,7 +52,7 @@ func TestIPTool_GetClientIP(t *testing.T) {
 
 			request := mcp.CallToolRequest{
 				Params: mcp.CallToolParams{
-					Arguments: map[string]interface{}{},
+					Arguments: map[string]any{},
 				},
 			}
 
@@ -100,7 +101,7 @@ func TestIPTool_NoContextIP(t *testing.T) {
 
 	request := mcp.CallToolRequest{
 		Params: mcp.CallToolParams{
-			Arguments: map[string]interface{}{},
+			Arguments: map[string]any{},
 		},
 	}
 
@@ -149,7 +150,7 @@ func TestIPDataTool_Success(t *testing.T) {
 	ctx := context.WithValue(context.Background(), ClientIPKey, "192.168.1.1")
 	request := mcp.CallToolRequest{
 		Params: mcp.CallToolParams{
-			Arguments: map[string]interface{}{},
+			Arguments: map[string]any{},
 		},
 	}
 
@@ -226,7 +227,7 @@ func TestIPDataTool_NoClientIP(t *testing.T) {
 
 	request := mcp.CallToolRequest{
 		Params: mcp.CallToolParams{
-			Arguments: map[string]interface{}{},
+			Arguments: map[string]any{},
 		},
 	}
 
@@ -259,7 +260,7 @@ func TestIPDataTool_APIFailure(t *testing.T) {
 	ctx := context.WithValue(context.Background(), ClientIPKey, "invalid")
 	request := mcp.CallToolRequest{
 		Params: mcp.CallToolParams{
-			Arguments: map[string]interface{}{},
+			Arguments: map[string]any{},
 		},
 	}
 
@@ -340,7 +341,7 @@ func TestIPDataTool_RealData(t *testing.T) {
 	ctx := context.WithValue(context.Background(), ClientIPKey, "2a0c:5a85:d506:e700:89d6:90b5:fc32:acc9")
 	request := mcp.CallToolRequest{
 		Params: mcp.CallToolParams{
-			Arguments: map[string]interface{}{},
+			Arguments: map[string]any{},
 		},
 	}
 
@@ -442,4 +443,43 @@ func TestIPDataTool_RealData(t *testing.T) {
 	}
 
 	ipDataTool.Handler = originalHandler
+}
+
+func TestFetchIPData(t *testing.T) {
+	// Test with specific IP
+	ctx := context.WithValue(context.Background(), ClientIPKey, "8.8.8.8")
+
+	// This will make a real API call, so we expect either success or failure
+	ipData, err := FetchIPData(ctx, "8.8.8.8")
+	if err != nil {
+		t.Logf("FetchIPData returned error (expected with real API call): %v", err)
+		// Error is acceptable in test environment
+		return
+	}
+
+	if ipData == nil {
+		t.Error("FetchIPData returned nil data with no error")
+		return
+	}
+
+	// Verify basic structure
+	if ipData.Query == "" {
+		t.Error("FetchIPData returned empty Query field")
+	}
+
+	t.Logf("FetchIPData successful: %s, %s, %s", ipData.Query, ipData.City, ipData.Country)
+}
+
+func TestFetchIPData_NoClientIP(t *testing.T) {
+	ctx := context.Background() // No client IP
+
+	_, err := FetchIPData(ctx, "")
+	if err == nil {
+		t.Error("Expected error when no client IP provided")
+	}
+
+	expectedError := "could not determine client IP address"
+	if !strings.Contains(err.Error(), expectedError) {
+		t.Errorf("Expected error containing '%s', got: %s", expectedError, err.Error())
+	}
 }

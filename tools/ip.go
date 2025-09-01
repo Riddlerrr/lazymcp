@@ -81,23 +81,13 @@ func ipDataTool() mcp.Tool {
 	)
 }
 
-func ipDataToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	var targetIP string
-
-	// Check if IP parameter is provided
-	if args, ok := request.Params.Arguments.(map[string]interface{}); ok {
-		if ipParam, exists := args["ip"]; exists && ipParam != nil {
-			if ipStr, ok := ipParam.(string); ok && ipStr != "" {
-				targetIP = ipStr
-			}
-		}
-	}
-
-	// Fall back to client IP if no parameter provided
+// FetchIPData fetches IP geolocation data for a given IP address or client IP from context
+func FetchIPData(ctx context.Context, targetIP string) (*IPData, error) {
+	// If no target IP provided, get client IP from context
 	if targetIP == "" {
 		clientIP, ok := ctx.Value(ClientIPKey).(string)
 		if !ok || clientIP == "" {
-			return mcp.NewToolResultError("Could not determine client IP address and no IP parameter provided"), nil
+			return nil, fmt.Errorf("could not determine client IP address and no IP parameter provided")
 		}
 		targetIP = clientIP
 	}
@@ -105,25 +95,46 @@ func ipDataToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.C
 	url := fmt.Sprintf("http://ip-api.com/json/%s", targetIP)
 	resp, err := http.Get(url)
 	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("Failed to fetch IP data: %v", err)), nil
+		return nil, fmt.Errorf("failed to fetch IP data: %v", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("Failed to read response: %v", err)), nil
+		return nil, fmt.Errorf("failed to read response: %v", err)
 	}
 
 	var ipData IPData
 	if err := json.Unmarshal(body, &ipData); err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("Failed to parse response: %v", err)), nil
+		return nil, fmt.Errorf("failed to parse response: %v", err)
 	}
 
 	if ipData.Status != "success" {
-		return mcp.NewToolResultError("Failed to get IP data from service"), nil
+		return nil, fmt.Errorf("failed to get IP data from service")
 	}
 
-	result := FormatIPDataAsMarkdown(ipData)
+	return &ipData, nil
+}
+
+func ipDataToolHandler(ctx context.Context, request mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	var targetIP string
+
+	// Check if IP parameter is provided
+	if args, ok := request.Params.Arguments.(map[string]any); ok {
+		if ipParam, exists := args["ip"]; exists && ipParam != nil {
+			if ipStr, ok := ipParam.(string); ok && ipStr != "" {
+				targetIP = ipStr
+			}
+		}
+	}
+
+	// Fetch IP data using shared function
+	ipData, err := FetchIPData(ctx, targetIP)
+	if err != nil {
+		return mcp.NewToolResultError(err.Error()), nil
+	}
+
+	result := FormatIPDataAsMarkdown(*ipData)
 	return mcp.NewToolResultText(result), nil
 }
 
