@@ -1,6 +1,6 @@
 # LazyMCP - An MCP server that can really help
 
-A general-purpose MCP (Model Context Protocol) server written in Go that provides calculator, IP lookup, and weather functionality with real-time data access.
+A general-purpose MCP (Model Context Protocol) server written in Go that provides calculator, IP lookup, weather, and weather forecast functionality with real-time data access.
 
 ## Installation
 
@@ -24,8 +24,8 @@ bin/build
 
 ## Configuration
 
-### Weather Tool Setup
-The weather tool requires an OpenWeatherMap API key to function:
+### Weather Tools Setup
+The weather and weather forecast tools require an OpenWeatherMap API key to function:
 
 1. Get a free API key from https://openweathermap.org/api
 2. Copy `.env.example` to `.env`
@@ -161,6 +161,44 @@ Get current weather for a location. Uses client's IP location by default, or acc
 ```
 
 **Returns:** Formatted markdown with current weather conditions, temperature, humidity, pressure, wind, visibility, and location details. Units are automatically determined (metric for most countries, imperial for US locations).
+
+#### `get_weather_forecast`
+Get 5-day weather forecast for a location. Uses client's IP location by default, or accepts a custom location parameter.
+
+**Parameters:**
+- `location` (optional): Location to get forecast for. Can be city name (e.g., 'London' or 'New York,US') or coordinates (e.g., '40.7128,-74.0060'). Uses client IP location if not provided.
+
+**Examples:**
+```json
+{
+  "name": "get_weather_forecast",
+  "arguments": {}
+}
+```
+
+```json
+{
+  "name": "get_weather_forecast",
+  "arguments": {
+    "location": "Valencia,ES"
+  }
+}
+```
+
+```json
+{
+  "name": "get_weather_forecast",
+  "arguments": {
+    "location": "39.4676,-0.3771"
+  }
+}
+```
+
+**Returns:** Formatted markdown with:
+- **Next 24 Hours**: Weather forecast in 3-hour intervals with temperature, conditions, and precipitation probability
+- **5-Day Forecast**: Daily summaries with temperature ranges, weather conditions, and precipitation chances
+- **Location Details**: City, country, and coordinates
+- **Automatic Units**: Metric for most countries, imperial for US locations
 
 ## Development
 
