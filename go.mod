@@ -4,7 +4,8 @@ go 1.24.5
 
 require (
 	github.com/expr-lang/expr v1.17.5
-	github.com/mark3labs/mcp-go v0.36.0
+	github.com/joho/godotenv v1.5.1
+	github.com/mark3labs/mcp-go v0.38.0
 )
 
 require (
@@ -12,7 +13,6 @@ require (
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/invopop/jsonschema v0.13.0 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
