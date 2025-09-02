@@ -1,0 +1,124 @@
+# Calculator Tool
+
+The calculator tool provides mathematical expression evaluation with support for basic arithmetic, trigonometric functions, logarithms, and advanced mathematical operations.
+
+## Tool: `calculate`
+
+Evaluate mathematical expressions using natural syntax with comprehensive mathematical function support.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `expression` | string | ✅ | Mathematical expression to evaluate |
+
+### Supported Operations
+
+#### Basic Arithmetic
+- `+` - Addition
+- `-` - Subtraction  
+- `*` - Multiplication
+- `/` - Division
+- `^` - Exponentiation
+
+#### Mathematical Functions
+- `sqrt()` - Square root
+- `pow(base, exponent)` - Power function
+- `abs()` - Absolute value
+- `ceil()` - Ceiling function
+- `floor()` - Floor function
+- `round()` - Round to nearest integer
+
+#### Trigonometric Functions
+- `sin()`, `cos()`, `tan()` - Basic trigonometric functions
+- `asin()`, `acos()`, `atan()` - Inverse trigonometric functions
+
+#### Logarithmic Functions  
+- `log()` - Base-10 logarithm
+- `ln()` - Natural logarithm (base-e)
+
+#### Mathematical Constants
+- `pi` - π (3.14159...)
+- `e` - Euler's number (2.71828...)
+
+### Examples
+
+#### Basic Arithmetic
+```json
+{
+  "name": "calculate",
+  "arguments": {
+    "expression": "2 + 3 * 4"
+  }
+}
+```
+**Returns:** `14`
+
+#### Trigonometric Calculations
+```json
+{
+  "name": "calculate",
+  "arguments": {
+    "expression": "sin(pi/4)"
+  }
+}
+```
+**Returns:** `0.7071067811865476`
+
+#### Power and Root Functions
+```json
+{
+  "name": "calculate",
+  "arguments": {
+    "expression": "sqrt(16)"
+  }
+}
+```
+**Returns:** `4`
+
+```json
+{
+  "name": "calculate",
+  "arguments": {
+    "expression": "pow(2, 8)"
+  }
+}
+```
+**Returns:** `256`
+
+#### Complex Expressions
+```json
+{
+  "name": "calculate",
+  "arguments": {
+    "expression": "log(100) + sqrt(cos(pi/3)^2 + sin(pi/3)^2)"
+  }
+}
+```
+**Returns:** `3`
+
+### Return Value
+
+The tool returns the calculated result as a formatted number string. Results are returned with appropriate precision for the calculation type.
+
+### Error Handling
+
+The calculator tool handles various error conditions:
+
+- **Invalid syntax**: Returns error for malformed expressions
+- **Division by zero**: Returns appropriate error message
+- **Invalid function calls**: Returns error for unsupported functions or incorrect parameters
+- **Mathematical domain errors**: Returns error for operations like `sqrt(-1)` or `log(-1)`
+
+### Use Cases
+
+- **Scientific calculations**: Complex mathematical operations for research or analysis
+- **Engineering computations**: Quick calculations for technical work  
+- **Educational purposes**: Demonstrating mathematical concepts
+- **Data analysis**: Statistical and mathematical processing
+- **Financial calculations**: Interest, percentages, and financial modeling
+
+### Related Tools
+
+- [Network Tools](/tools/network) - For IP-based calculations and analysis
+- [Weather Tools](/tools/weather) - Numerical weather data processing

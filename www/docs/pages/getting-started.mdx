@@ -1,3 +1,145 @@
-# Get started
+# Getting Started
 
-Hello world!
+LazyMCP is a Model Context Protocol (MCP) server that provides AI tools for mathematical calculations, network analysis, and weather information. Use LazyMCP to enhance your AI assistant with powerful computational capabilities.
+
+## Available Tools
+
+LazyMCP provides 5 tools across 3 categories:
+
+### 🌤️ Weather
+- **get_weather** - Current weather conditions
+- **get_weather_forecast** - 5-day weather forecast with 3-hour intervals
+
+### 🌐 Network  
+- **get_ip** - Get client IP address
+- **get_ip_data** - Get detailed IP geolocation data
+
+### 🧮 Calculator
+- **calculate** - Mathematical expression evaluation with support for basic arithmetic, trigonometry, and advanced functions
+
+## Setup Instructions
+
+LazyMCP is available as a public service at `https://lazymcp.ai/mcp`. Follow the instructions below for your AI tool:
+
+### Claude Code (claude.ai/code)
+
+Use the Claude MCP command to add LazyMCP:
+
+```bash
+claude mcp add --transport http lazymcp https://lazymcp.ai/mcp
+```
+
+This command will:
+- Add LazyMCP as an MCP server named "lazymcp"
+- Configure HTTP transport for the connection
+- Connect to the public LazyMCP service
+
+Verify the connection by checking that all 5 tools appear in your Claude Code session.
+
+### Claude Desktop App
+
+1. Open the Claude Desktop application
+2. Go to **Settings** → **Connectors**
+3. Click **Add custom connector**
+4. Fill out the connector form:
+   - **Name**: `LazyMCP`
+   - **Remote MCP**: `https://lazymcp.ai/mcp`
+5. Click **Add** to save the connector
+6. Verify the LazyMCP connector appears as "CUSTOM" in your connectors list
+7. Confirm all 5 tools are available in your conversations
+
+:::info
+**Location Detection Note**: Claude Desktop makes requests from its own servers, so IP-based location detection may not reflect your actual location. When using weather or geolocation tools, Claude may ask you to specify your city or location for more accurate results.
+:::
+
+### OpenCode
+
+Edit your OpenCode configuration file at `~/.config/opencode/opencode.json` and add the MCP server:
+
+```json
+{
+  "mcp": {
+    "lazymcp": {
+      "type": "remote",
+      "url": "https://lazymcp.ai/mcp",
+      "enabled": true,
+      "headers": {}
+    }
+  }
+}
+```
+
+After saving the configuration:
+1. Restart OpenCode to load the MCP server
+2. Verify all 5 LazyMCP tools are available in your workspace
+
+### Other MCP-Compatible Clients
+
+For any MCP-compatible AI tool, use these connection parameters:
+
+- **Server URL**: `https://lazymcp.ai/mcp`
+- **Transport Protocol**: Streamable HTTP
+- **Authentication**: None required (public service)
+
+## Verifying Your Setup
+
+Once connected, test LazyMCP with a simple calculation:
+
+**Ask your AI assistant**: "Calculate the square root of 144"
+
+You should see the AI use the `calculate` tool and return: `12`
+
+You can also test other tools:
+- "What's the weather like in London?" (uses `get_weather`)
+- "What's my IP address?" (uses `get_ip`)
+
+## Using LazyMCP Tools
+
+### Weather Examples
+- "What's the current weather?"
+- "Get weather forecast for New York"
+- "Show me the 5-day forecast for coordinates 51.5074,-0.1278"
+
+### Network Examples  
+- "What's my current IP address?"
+- "Get geolocation data for IP 8.8.8.8"
+- "Where is my internet connection located?"
+
+### Calculator Examples
+- "Calculate sin(π/4) + cos(π/4)"
+- "What's 2^10?"
+- "Solve: sqrt(16) * log(100)"
+
+## Troubleshooting
+
+### Common Issues
+
+**Tools not appearing**: Verify the server URL is exactly `https://lazymcp.ai/mcp` with HTTPS
+
+**Connection failed**: Check your internet connection and ensure your AI client supports MCP
+
+**Weather tools not working**: The public LazyMCP service includes weather functionality - no additional setup needed
+
+**Calculation errors**: Ensure mathematical expressions use supported functions and syntax
+
+### Getting Help
+
+If you encounter issues:
+
+1. Check the [Configuration Guide](/configuration) for detailed troubleshooting
+2. Review tool-specific documentation in the [Tools](/tools) section
+3. Report bugs on [GitHub Issues](https://github.com/Riddlerrr/lazymcp/issues)
+
+## Next Steps
+
+- **[Tools Overview](/tools)** - Explore all available tools and their capabilities
+- **[Weather Tools](/tools/weather)** - Real-time weather data and forecasting
+- **[Network Tools](/tools/network)** - IP analysis and geolocation services  
+- **[Calculator Tools](/tools/calculator)** - Mathematical operations and functions
+- **[Configuration](/configuration)** - Advanced setup and local deployment options
+
+## About MCP
+
+The Model Context Protocol (MCP) is an open standard for connecting AI assistants to external tools and data sources. LazyMCP implements this protocol to provide seamless tool integration with your AI workflow.
+
+Learn more about MCP: [Official Specification](https://spec.modelcontextprotocol.io/)

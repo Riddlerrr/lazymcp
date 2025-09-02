@@ -1,0 +1,239 @@
+# Configuration
+
+LazyMCP requires minimal configuration to get started. Most tools work out of the box, but weather functionality requires an API key setup.
+
+## Environment Setup
+
+### Weather Tools Configuration
+
+Weather tools (`get_weather` and `get_weather_forecast`) require an OpenWeatherMap API key.
+
+#### 1. Get API Key
+
+1. Visit [OpenWeatherMap API](https://openweathermap.org/api)
+2. Sign up for a free account
+3. Navigate to your API keys section  
+4. Copy your API key (it looks like: `a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6`)
+
+#### 2. Set Environment Variable
+
+Create a `.env` file in your LazyMCP root directory:
+
+```bash
+# Copy the example file
+cp .env.example .env
+```
+
+Edit the `.env` file and add your API key:
+
+```bash
+# OpenWeatherMap API Configuration
+OPENWEATHER_API_KEY=your_actual_api_key_here
+```
+
+:::warning
+**Keep API Keys Secure**
+- Never commit API keys to version control
+- Use environment variables for production deployments  
+- Rotate API keys regularly for security
+:::
+
+#### 3. Restart LazyMCP Server
+
+After adding your API key, restart the server:
+
+```bash
+# Stop the current server (if running)
+# Then start with your new configuration
+bin/run
+```
+
+### API Key Validation
+
+You can verify your API key is working by testing a weather tool:
+
+```json
+{
+  "name": "get_weather",
+  "arguments": {
+    "location": "London"
+  }
+}
+```
+
+If configured correctly, you'll receive weather data. If not, you'll see a clear error message.
+
+## Server Configuration
+
+### Network Settings
+
+LazyMCP is available as a public service:
+- **Public URL**: `https://lazymcp.ai/mcp`
+- **Protocol**: HTTPS
+- **Transport**: Streamable HTTP
+
+For local development, LazyMCP runs on:
+- **Protocol**: HTTP  
+- **Host**: localhost
+- **Port**: 3000
+- **Endpoint**: `/mcp`
+- **Local URL**: `http://localhost:3000/mcp`
+
+### Transport Protocol
+
+LazyMCP uses **Streamable HTTP transport** for MCP communication, which provides:
+- Real-time bidirectional communication
+- Efficient message streaming
+- Standard HTTP compatibility
+- WebSocket-like functionality over HTTP
+
+### Client IP Detection  
+
+For location-based features, LazyMCP automatically detects client IP addresses from these headers:
+
+1. `X-Forwarded-For` (most common with load balancers)
+2. `X-Real-IP` (Nginx proxy)  
+3. `CF-Connecting-IP` (Cloudflare)
+4. Standard connection remote address
+
+This enables automatic location detection for weather and network tools without additional configuration.
+
+## Development Configuration
+
+### Building from Source
+
+Required dependencies:
+- **Go**: Version 1.24 or later
+- **Git**: For cloning the repository
+
+Build commands:
+```bash
+# Development build
+bin/build
+
+# Optimized production build  
+bin/build_release
+
+# Run in development mode
+bin/run
+
+# Run tests
+bin/test
+```
+
+### Development Environment
+
+For development, you can run LazyMCP directly with Go:
+
+```bash
+go run main.go
+```
+
+This provides:
+- Hot reloading during development
+- Detailed error messages and stack traces
+- Debug logging information
+
+## Production Deployment
+
+### Environment Variables
+
+For production deployments, set environment variables appropriately:
+
+```bash
+# Required for weather tools
+export OPENWEATHER_API_KEY="your_production_api_key"
+
+# Optional: Custom port (defaults to 3000)
+export PORT="8080"
+
+# Optional: Custom host binding (defaults to localhost)  
+export HOST="0.0.0.0"
+```
+
+### Security Considerations
+
+#### API Key Protection
+- Use secure environment variable management (e.g., Kubernetes secrets, AWS Secrets Manager)
+- Implement API key rotation procedures
+- Monitor API key usage and set appropriate rate limits
+
+#### Network Security
+- Use HTTPS in production (reverse proxy recommended)
+- Implement proper firewall rules  
+- Consider VPN or private network access for sensitive deployments
+
+#### Rate Limiting
+- OpenWeatherMap free tier: 60 calls/minute, 1,000,000 calls/month
+- Implement client-side rate limiting if needed
+- Monitor usage to avoid quota exceeded errors
+
+### Monitoring
+
+Track the health of your LazyMCP deployment:
+
+#### Health Checks
+- **Endpoint**: `GET /health` (if implemented)
+- **MCP Protocol**: Test basic tool calls
+- **Weather API**: Monitor OpenWeatherMap API response times
+
+#### Logging
+- Server startup and shutdown events
+- API key validation results  
+- Weather API call success/failure rates
+- Client IP detection accuracy
+
+## Troubleshooting
+
+### Common Issues
+
+#### Weather Tools Not Working
+```
+Error: Weather API key not configured
+```
+**Solution**: Verify `.env` file exists with correct `OPENWEATHER_API_KEY`
+
+#### Invalid API Key Error
+```
+Error: Invalid API key. Please see https://openweathermap.org/faq#error401
+```
+**Solution**: 
+1. Check API key is correctly copied
+2. Ensure API key is activated (can take up to 2 hours)
+3. Verify account is in good standing
+
+#### Location Not Found
+```
+Error: Location "XYZ" not found
+```
+**Solution**: 
+- Use standard city names: "London", "New York,US"
+- Try coordinates format: "40.7128,-74.0060"  
+- Check spelling and use English city names
+
+#### Network Connection Issues
+```
+Error: Failed to connect to weather service
+```
+**Solution**:
+- Check internet connectivity
+- Verify OpenWeatherMap service status
+- Check firewall settings for outbound HTTPS
+
+### Debug Mode
+
+For detailed troubleshooting, run LazyMCP with debug logging:
+
+```bash
+# Enable debug mode (if implemented)
+DEBUG=true bin/run
+
+# Or with Go directly  
+go run main.go --debug
+```
+
+### Support Resources
+
+- **GitHub Issues**: [Report bugs and feature requests](https://github.com/Riddlerrr/lazymcp/issues)
+- **OpenWeatherMap Support**: [API documentation and help](https://openweathermap.org/api)
+- **MCP Protocol**: [Model Context Protocol specification](https://spec.modelcontextprotocol.io/)

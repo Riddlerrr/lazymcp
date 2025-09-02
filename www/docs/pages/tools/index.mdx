@@ -1,0 +1,52 @@
+# Tools Overview
+
+LazyMCP provides a comprehensive set of tools for different use cases. All tools are available via MCP (Model Context Protocol) and can be called from any compatible AI client.
+
+## Available Tool Categories
+
+### 🌤️ Weather
+Real-time weather information and forecasting using OpenWeatherMap API with automatic location detection.
+
+- **get_weather** - Get current weather conditions
+- **get_weather_forecast** - Get 5-day weather forecast with 3-hour intervals
+
+[Learn more about Weather Tools →](/tools/weather)
+
+### 🌐 Network
+IP address lookup and geolocation services for network analysis and user location detection.
+
+- **get_ip** - Get the client's IP address
+- **get_ip_data** - Get detailed geolocation data for any IP address
+
+[Learn more about Network Tools →](/tools/network)
+
+### 🧮 Calculator
+Mathematical expression evaluation with support for basic arithmetic, trigonometric functions, and advanced mathematical operations.
+
+- **calculate** - Evaluate mathematical expressions using natural syntax
+
+[Learn more about Calculator →](/tools/calculator)
+
+## Quick Start
+
+To use LazyMCP tools, add the server URL to your AI client:
+
+```
+https://lazymcp.ai/mcp
+```
+
+All tools follow the standard MCP tool interface and return structured responses that can be easily processed by AI models.
+
+## Tool Response Format
+
+All tools return responses in a consistent format optimized for AI consumption:
+
+- **Text responses** for simple data (IP addresses, calculations)  
+- **Markdown formatted responses** for complex data (weather, geolocation)
+- **Error messages** with clear descriptions when issues occur
+
+## Next Steps
+
+- [Configuration](/configuration) - Set up API keys and environment variables
+- [Getting Started](/getting-started) - Complete setup guide
+- Explore individual tool documentation using the sidebar navigation

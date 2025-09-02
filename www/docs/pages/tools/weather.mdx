@@ -1,0 +1,261 @@
+# Weather Tools
+
+Weather tools provide real-time weather information and forecasting using OpenWeatherMap API with automatic location detection and intelligent unit selection.
+
+:::info
+**Configuration Required**: Weather tools require an OpenWeatherMap API key. See [Configuration](/configuration) for setup instructions.
+:::
+
+## Tool: `get_weather`
+
+Get current weather conditions for any location. Uses intelligent location detection from client IP when no location is specified.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `location` | string | ❌ | Location to get weather for. Uses client IP location if not provided |
+
+### Location Formats
+
+The tool accepts multiple location formats:
+
+#### City Names
+- `"London"` - City only
+- `"New York,US"` - City with country code
+- `"Paris,FR"` - International cities
+
+#### Coordinates  
+- `"40.7128,-74.0060"` - Latitude,longitude format
+- `"51.5074,-0.1278"` - Decimal degrees
+
+#### Automatic Detection
+- Empty/no parameter - Uses client IP geolocation
+
+### Examples
+
+#### Current Location Weather
+```json
+{
+  "name": "get_weather",
+  "arguments": {}
+}
+```
+
+#### Specific City Weather
+```json
+{
+  "name": "get_weather",
+  "arguments": {
+    "location": "London"
+  }
+}
+```
+
+#### Coordinates Weather
+```json
+{
+  "name": "get_weather",
+  "arguments": {
+    "location": "40.7128,-74.0060"
+  }
+}
+```
+
+### Return Value
+
+Returns comprehensive weather data in formatted Markdown:
+
+```markdown
+# Current Weather: London, GB
+
+**Condition:** Partly Cloudy ⛅  
+**Temperature:** 18°C (feels like 17°C)  
+**Humidity:** 65%  
+**Pressure:** 1013 hPa  
+**Wind:** 12 km/h from SW  
+**Visibility:** 10 km  
+
+**Location:** London (51.5074, -0.1278)  
+**Timezone:** Europe/London  
+**Last Updated:** 2024-07-19 14:30 UTC
+```
+
+---
+
+## Tool: `get_weather_forecast`
+
+Get detailed 5-day weather forecast with 3-hour intervals, including both short-term and daily summaries.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `location` | string | ❌ | Location to get forecast for. Uses client IP location if not provided |
+
+### Location Formats
+
+Same formats as `get_weather`:
+- City names (`"Valencia,ES"`)  
+- Coordinates (`"39.4676,-0.3771"`)
+- Auto-detection (no parameter)
+
+### Examples
+
+#### Current Location Forecast
+```json
+{
+  "name": "get_weather_forecast",
+  "arguments": {}
+}
+```
+
+#### Specific City Forecast
+```json
+{
+  "name": "get_weather_forecast",
+  "arguments": {
+    "location": "Valencia,ES"
+  }
+}
+```
+
+#### Coordinates Forecast
+```json
+{
+  "name": "get_weather_forecast",
+  "arguments": {
+    "location": "39.4676,-0.3771"
+  }
+}
+```
+
+### Return Value
+
+Returns detailed forecast data in structured Markdown with two sections:
+
+#### Next 24 Hours
+3-hour interval forecasts with:
+- Time stamps in local timezone
+- Temperature and "feels like" temperature  
+- Weather conditions with icons
+- Precipitation probability
+- Wind speed and direction
+- Humidity levels
+
+#### 5-Day Summary  
+Daily forecasts with:
+- Date and day of week
+- Temperature range (min/max)
+- Dominant weather conditions
+- Precipitation chances
+- Brief descriptions
+
+```markdown
+# Weather Forecast: Valencia, ES
+
+## Next 24 Hours
+
+**Fri 19 Jul, 15:00** - Partly Cloudy ⛅  
+26°C (feels like 28°C) • 10% rain • Wind: 8 km/h NE • Humidity: 58%
+
+**Fri 19 Jul, 18:00** - Clear Sky ☀️  
+24°C (feels like 25°C) • 0% rain • Wind: 6 km/h E • Humidity: 62%
+
+[... more 3-hour intervals ...]
+
+## 5-Day Forecast
+
+**Friday, Jul 19** - Partly Cloudy ⛅  
+26°C / 19°C • 10% chance of rain  
+Light winds and comfortable conditions
+
+**Saturday, Jul 20** - Sunny ☀️  
+28°C / 21°C • 0% chance of rain  
+Clear skies throughout the day
+
+[... more daily forecasts ...]
+
+**Location:** Valencia (39.4676, -0.3771)  
+**Timezone:** Europe/Madrid
+```
+
+### Automatic Unit Selection
+
+Weather tools automatically select appropriate units based on location:
+
+#### Metric System (Default)
+- **Temperature**: Celsius (°C)
+- **Speed**: Kilometers per hour (km/h)  
+- **Distance**: Kilometers (km)
+- **Pressure**: Hectopascals (hPa)
+
+#### Imperial System (US Locations)  
+- **Temperature**: Fahrenheit (°F)
+- **Speed**: Miles per hour (mph)
+- **Distance**: Miles (mi)
+- **Pressure**: Inches of mercury (inHg)
+
+### Weather Conditions
+
+The tools provide descriptive weather conditions with appropriate emoji icons:
+
+- ☀️ Clear Sky / Sunny
+- 🌤️ Few Clouds  
+- ⛅ Partly Cloudy
+- ☁️ Overcast
+- 🌦️ Light Rain
+- 🌧️ Rain / Heavy Rain
+- ⛈️ Thunderstorm  
+- 🌨️ Snow
+- 🌫️ Fog / Mist
+- 💨 Windy
+
+### Error Handling
+
+Weather tools handle various error conditions gracefully:
+
+- **Invalid location**: Returns error with suggestion for correct format
+- **API key missing**: Clear error message with configuration instructions
+- **API rate limits**: Handles quota exceeded scenarios
+- **Service unavailable**: Fallback error messages when OpenWeatherMap is down
+- **Network issues**: Timeout and connectivity error handling
+
+### Use Cases
+
+#### Personal Assistance
+- **Daily planning**: Check weather before outdoor activities
+- **Travel preparation**: Weather conditions for destination cities
+- **Clothing decisions**: Temperature and condition-based outfit selection
+
+#### Business Applications
+- **Event planning**: Weather impact assessment for outdoor events
+- **Agriculture**: Crop planning and irrigation scheduling
+- **Logistics**: Weather-dependent shipping and delivery planning
+- **Retail**: Weather-based inventory and marketing decisions
+
+#### Smart Home Integration
+- **Climate control**: Automatic heating/cooling adjustments
+- **Irrigation systems**: Smart watering based on precipitation forecasts
+- **Energy management**: Solar panel and wind turbine optimization
+
+### Data Accuracy
+
+Weather data is sourced from OpenWeatherMap's professional meteorological services:
+
+- **Update frequency**: Current weather updated every 10 minutes
+- **Forecast accuracy**: 5-day forecasts with 3-hour granularity
+- **Geographic coverage**: Global coverage with local weather stations
+- **Historical reliability**: Established weather service with high accuracy rates
+
+### Related Tools
+
+- [Network Tools](/tools/network) - Automatic location detection for weather queries
+- [Calculator](/tools/calculator) - Temperature conversion and weather calculations
+
+### Privacy & Performance
+
+- **No data storage**: Weather queries are not logged or stored
+- **Efficient caching**: Responses cached briefly to reduce API calls
+- **Location privacy**: IP-based location detection respects user privacy
+- **Fast responses**: Optimized API calls with minimal latency

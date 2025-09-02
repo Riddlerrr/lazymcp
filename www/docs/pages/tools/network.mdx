@@ -1,0 +1,147 @@
+# Network Tools
+
+Network tools provide IP address lookup and comprehensive geolocation services for network analysis, user location detection, and security monitoring.
+
+## Tool: `get_ip`
+
+Get the IP address of the client making the request. This tool automatically detects the client IP from various headers and network configurations.
+
+### Parameters
+
+This tool takes no parameters.
+
+### Example
+
+```json
+{
+  "name": "get_ip",
+  "arguments": {}
+}
+```
+
+**Returns:** `"192.168.1.100"` (example IP address)
+
+### Use Cases
+
+- **User identification**: Basic client identification for logging
+- **Network diagnostics**: Quick IP address verification
+- **Security monitoring**: Track request origins
+- **Load balancer testing**: Verify IP forwarding configuration
+
+---
+
+## Tool: `get_ip_data`
+
+Get detailed geolocation and network information for any IP address, including the client's own IP if no specific IP is provided.
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `ip` | string | ❌ | IP address to lookup. Uses client IP if not provided |
+
+### Examples
+
+#### Get Client IP Data
+```json
+{
+  "name": "get_ip_data",
+  "arguments": {}
+}
+```
+
+#### Get Specific IP Data
+```json
+{
+  "name": "get_ip_data",
+  "arguments": {
+    "ip": "8.8.8.8"
+  }
+}
+```
+
+### Return Value
+
+Returns comprehensive geolocation data in Markdown format:
+
+```markdown
+## IP Information: 8.8.8.8
+
+**Location:** Mountain View, California, United States  
+**Coordinates:** 37.4056, -122.0775  
+**Timezone:** America/Los_Angeles  
+**ISP:** Google LLC  
+**Organization:** Google Public DNS  
+**Network:** 8.8.8.0/24  
+
+**Connection Details:**
+- Type: Datacenter
+- Mobile: No
+- Proxy: No
+- Hosting: Yes
+```
+
+### Data Fields Included
+
+#### Geographic Information
+- **Country**: Full country name and code
+- **Region/State**: Administrative region
+- **City**: City name
+- **Coordinates**: Latitude and longitude
+- **Timezone**: IANA timezone identifier
+
+#### Network Information  
+- **ISP**: Internet Service Provider name
+- **Organization**: Organization that owns the IP range
+- **Network Range**: CIDR notation for the IP block
+- **AS Number**: Autonomous System number
+
+#### Connection Properties
+- **Connection Type**: Residential, business, datacenter, etc.
+- **Mobile**: Whether the connection is mobile
+- **Proxy/VPN**: Detection of proxy or VPN usage
+- **Hosting**: Whether IP belongs to a hosting provider
+
+### IP Address Support
+
+The tool supports both IPv4 and IPv6 addresses:
+
+- **IPv4**: Standard dotted decimal notation (e.g., `192.168.1.1`)
+- **IPv6**: Full and compressed notation (e.g., `2001:db8::1`)
+
+### Error Handling
+
+- **Invalid IP format**: Returns error for malformed IP addresses
+- **Private IP addresses**: Limited data for private ranges (10.0.0.0/8, 192.168.0.0/16, etc.)
+- **API limitations**: Handles rate limiting and service unavailability gracefully
+- **Network errors**: Provides fallback responses when geolocation service is unreachable
+
+### Use Cases
+
+#### Security & Fraud Detection
+- **Geographic verification**: Verify user location matches expected region
+- **Proxy detection**: Identify VPN/proxy usage for security policies
+- **Risk assessment**: Evaluate connection types for fraud prevention
+
+#### Analytics & Personalization
+- **Geographic analytics**: Understand user distribution by location
+- **Content localization**: Serve region-appropriate content
+- **Timezone handling**: Adjust timestamps and scheduling
+
+#### Network Operations
+- **Troubleshooting**: Diagnose network routing and connectivity issues
+- **Performance optimization**: Optimize content delivery based on location
+- **Compliance**: Meet geographic data residency requirements
+
+### Privacy Considerations
+
+The geolocation service respects user privacy:
+- No personal information is stored or logged
+- Only publicly available IP registration data is used
+- Geographic accuracy varies (typically city-level)
+- Private IP addresses return minimal information
+
+### Related Tools
+
+- [Calculator](/tools/calculator) - For IP address calculations and subnet math
+- [Weather Tools](/tools/weather) - Use location data to get local weather information

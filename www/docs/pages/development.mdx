@@ -1,0 +1,310 @@
+# Development
+
+This guide covers setting up LazyMCP for local development, building from source, and contributing to the project.
+
+## Prerequisites
+
+- **Go**: Version 1.24 or later
+- **Git**: For cloning the repository
+- **OpenWeatherMap API Key**: Required for weather tools (free)
+
+## Local Setup
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/Riddlerrr/lazymcp.git
+cd lazymcp
+```
+
+### 2. Install Dependencies
+
+```bash
+go mod download
+```
+
+### 3. Configure Weather Tools
+
+Weather tools require an OpenWeatherMap API key for local development:
+
+1. Get a free API key from [OpenWeatherMap](https://openweathermap.org/api)
+2. Copy the environment file:
+   ```bash
+   cp .env.example .env
+   ```
+3. Edit `.env` and add your API key:
+   ```bash
+   OPENWEATHER_API_KEY=your_api_key_here
+   ```
+
+For detailed configuration, see the [Configuration Guide](/configuration).
+
+## Building LazyMCP
+
+### Development Build
+
+```bash
+bin/build
+```
+
+### Production Build
+
+For optimized builds with stripped symbols:
+
+```bash
+bin/build_release
+```
+
+## Running Locally
+
+### Start the Development Server
+
+```bash
+bin/run
+```
+
+The server will start on `http://localhost:3000/mcp` using streamable HTTP transport.
+
+### Verify Installation
+
+You should see output similar to:
+```
+LazyMCP server starting on :3000
+Available tools: calculate, get_ip, get_ip_data, get_weather, get_weather_forecast
+```
+
+### Development Mode
+
+For hot reloading during development:
+
+```bash
+go run main.go
+```
+
+This provides:
+- Detailed error messages and stack traces
+- Debug logging information
+- No need to rebuild for code changes
+
+## Testing
+
+### Run All Tests
+
+```bash
+bin/test
+```
+
+### Run Specific Tool Tests
+
+```bash
+go test ./tools
+```
+
+### Test Individual Components
+
+```bash
+# Calculator tests
+go test ./tools -run TestCalculator
+
+# Weather tests  
+go test ./tools -run TestWeather
+
+# IP tools tests
+go test ./tools -run TestIP
+```
+
+## Project Structure
+
+```
+lazymcp/
+├── main.go                 # Server entry point
+├── tools/                  # Tool implementations
+│   ├── calculator.go       # Mathematical expression evaluator
+│   ├── calculator_test.go  # Calculator tests
+│   ├── ip.go              # IP lookup and geolocation
+│   ├── ip_test.go         # IP tools tests
+│   ├── weather.go         # Weather and forecast tools
+│   └── weather_test.go    # Weather tests
+├── test/
+│   └── fixtures/          # Test data fixtures
+├── bin/                   # Build scripts
+├── go.mod                 # Go module definition
+├── go.sum                 # Dependency checksums
+├── .env.example          # Environment variables template
+└── README.md             # Project documentation
+```
+
+## Adding New Tools
+
+Tools are implemented in the `tools/` package and registered in `main.go`. Each tool should:
+
+### 1. Implement the Tool Interface
+
+```go
+type Tool struct {
+    Tool    mcp.Tool
+    Handler mcp.ToolHandler
+}
+```
+
+### 2. Follow the Naming Convention
+
+- Tool file: `tools/newtool.go`
+- Test file: `tools/newtool_test.go`
+- Constructor: `NewNewToolTool()`
+
+### 3. Include Error Handling
+
+All tools should handle:
+- Invalid parameters
+- Network errors (for API calls)
+- Service unavailability
+- Rate limiting
+
+### 4. Write Comprehensive Tests
+
+- Unit tests for all functionality
+- Error condition testing
+- Mock external API calls
+- Use fixtures for large test data
+
+### 5. Register in Main
+
+Add your tool to `main.go`:
+
+```go
+newTool := tools.NewNewToolTool()
+mcpServer.AddTool(newTool.Tool, newTool.Handler)
+```
+
+## Code Style
+
+### Go Conventions
+
+- Follow standard Go formatting (`gofmt`)
+- Use descriptive variable names
+- Include package documentation
+- Handle all errors appropriately
+
+### Error Messages
+
+- Provide clear, actionable error messages
+- Include context about what failed
+- Suggest solutions when possible
+
+### Testing Best Practices
+
+- Test both success and failure cases
+- Use table-driven tests for multiple scenarios
+- Mock external dependencies
+- Keep test fixtures in `test/fixtures/`
+
+## Contributing
+
+### Before Submitting
+
+1. **Run all tests**: `bin/test`
+2. **Format code**: `go fmt ./...`
+3. **Check for issues**: `go vet ./...`
+4. **Update documentation**: Update relevant docs if needed
+
+### Pull Request Guidelines
+
+- **Clear description**: Explain what changes and why
+- **Single purpose**: One feature or fix per PR
+- **Tests included**: Add tests for new functionality
+- **Documentation updated**: Update relevant documentation
+
+### Commit Message Format
+
+```
+type: brief description
+
+Longer explanation if needed, wrapped at 72 characters.
+Include motivation for the change and contrast with previous behavior.
+```
+
+Types:
+- `feat:` - New features
+- `fix:` - Bug fixes  
+- `docs:` - Documentation changes
+- `test:` - Test additions or changes
+- `refactor:` - Code refactoring
+- `perf:` - Performance improvements
+
+## Deployment
+
+### Local Development
+
+For local development and testing:
+
+```bash
+# Development server
+bin/run
+
+# With debug logging
+DEBUG=true bin/run
+```
+
+### Production Deployment
+
+For production deployments:
+
+1. **Build optimized binary**: `bin/build_release`
+2. **Set environment variables**: Configure `OPENWEATHER_API_KEY`
+3. **Configure networking**: Set up reverse proxy with HTTPS
+4. **Monitor health**: Implement health checks and logging
+
+See the [Configuration Guide](/configuration) for detailed deployment instructions.
+
+## Debugging
+
+### Common Development Issues
+
+**Build failures**: Ensure Go version 1.24+ and all dependencies installed
+
+**Test failures**: Check API keys are set in `.env` file
+
+**Port conflicts**: Change port if 3000 is in use: `PORT=8080 bin/run`
+
+### Debug Logging
+
+Enable detailed logging:
+
+```bash
+# Set debug environment variable
+export DEBUG=true
+go run main.go
+
+# Or use with build script
+DEBUG=true bin/run
+```
+
+### Testing with cURL
+
+Test MCP endpoints directly:
+
+```bash
+# Health check (if implemented)
+curl http://localhost:3000/health
+
+# Test MCP protocol (requires MCP client)
+curl -X POST http://localhost:3000/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"method":"tools/list"}'
+```
+
+## Resources
+
+- **Go Documentation**: [golang.org](https://golang.org/doc/)
+- **MCP Protocol**: [Model Context Protocol Specification](https://spec.modelcontextprotocol.io/)
+- **OpenWeatherMap API**: [API Documentation](https://openweathermap.org/api)
+- **Project Issues**: [GitHub Issues](https://github.com/Riddlerrr/lazymcp/issues)
+
+## Support
+
+For development questions and contributions:
+
+- **GitHub Discussions**: General questions and ideas
+- **GitHub Issues**: Bug reports and feature requests  
+- **Pull Requests**: Code contributions and improvements
