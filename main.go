@@ -48,6 +48,9 @@ func NewMCPServer() *server.MCPServer {
 	weatherTool := tools.NewWeatherTool()
 	mcpServer.AddTool(weatherTool.Tool, weatherTool.Handler)
 
+	weatherForecastTool := tools.NewWeatherForecastTool()
+	mcpServer.AddTool(weatherForecastTool.Tool, weatherForecastTool.Handler)
+
 	return mcpServer
 }
 
