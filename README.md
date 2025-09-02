@@ -204,7 +204,12 @@ Get 5-day weather forecast for a location. Uses client's IP location by default,
 
 To run the server in development mode:
 ```bash
-go run main.go
+bin/run
+```
+
+To run tests:
+```bash
+bin/test
 ```
 
 ## License
