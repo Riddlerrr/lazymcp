@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://lazymcp.com/sitemap.xml
+Sitemap: https://lazymcp.ai/sitemap.xml
