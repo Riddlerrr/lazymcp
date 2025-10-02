@@ -5,7 +5,7 @@ go 1.24.5
 require (
 	github.com/expr-lang/expr v1.17.5
 	github.com/joho/godotenv v1.5.1
-	github.com/mark3labs/mcp-go v0.38.0
+	github.com/mark3labs/mcp-go v0.41.1
 )
 
 require (
